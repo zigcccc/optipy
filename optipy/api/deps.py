@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
-from todoist.auth import VerifyToken
-from todoist.db.session import SessionLocal
-from todoist.users.models import User
+from optipy.auth import VerifyToken
+from optipy.db.session import SessionLocal
+from optipy.apps.users.models import User
 
 from .exceptions import BadRequestFromRaisedException
 

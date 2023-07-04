@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from todoist.db.base import Base
-from todoist.config import settings
+from optipy.db.base import Base
+from optipy.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
 
-from todoist.config import settings
-from todoist.api.v1 import api
+from optipy.config import settings
+from optipy.api.v1 import api
 
 app = FastAPI()
 add_pagination(app)

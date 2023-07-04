@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from todoist.api.deps import get_current_user
+from optipy.api.deps import get_current_user
 
 from .schemas import User as UserOut
 from .models import User

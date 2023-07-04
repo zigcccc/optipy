@@ -1,6 +1,6 @@
 from pydantic import BaseModel, UUID4
 
-from todoist.utils.schema import ORMConfig
+from optipy.utils.schema import ORMConfig
 
 
 class UserBase(BaseModel):

@@ -7,9 +7,9 @@ from fastapi.testclient import TestClient
 from fastapi_pagination import add_pagination
 from sqlalchemy.orm import sessionmaker
 
-from todoist.config.settings import Settings
-from todoist.api.deps import get_auth_token_sub, get_db
-from todoist.db.base import Base
+from optipy.config.settings import Settings
+from optipy.api.deps import get_auth_token_sub, get_db
+from optipy.db.base import Base
 
 from main import app
 

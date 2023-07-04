@@ -1,15 +1,21 @@
 from datetime import datetime
 from uuid import uuid4
 
+from inflect import engine as inflect_engine
+
+from sqlalchemy import Column, DateTime
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-
-from todoist.db.models import Base
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import declarative_base
 
 
-class Todo(Base):
-    __tablename__ = "todos"
+p = inflect_engine()
+
+
+class BaseClass(object):
+    @declared_attr
+    def __tablename__(cls):
+        return p.plural(cls.__name__.lower())
 
     id = Column(
         UUID(as_uuid=True),
@@ -17,7 +23,6 @@ class Todo(Base):
         index=True,
         default=uuid4,
     )
-    title = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(
         DateTime,
@@ -26,7 +31,6 @@ class Todo(Base):
         onupdate=datetime.now,
         nullable=False,
     )
-    is_completed = Column(Boolean, default=False, nullable=False)
-    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
 
-    owner = relationship("User", back_populates="todos")
+
+Base = declarative_base(cls=BaseClass)

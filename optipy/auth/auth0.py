@@ -1,6 +1,6 @@
 import jwt
 
-from todoist.config import settings
+from optipy.config import settings
 
 
 class VerifyToken():

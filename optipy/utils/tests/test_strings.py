@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from todoist.utils.strings import to_camel
+from optipy.utils.strings import to_camel
 
 
 class TestToCamel:
