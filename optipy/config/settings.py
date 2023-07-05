@@ -15,10 +15,17 @@ class Settings(BaseSettings):
     DB_NAME: str
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
+    # Auth
     AUTH0_DOMAIN: str
     AUTH0_API_AUDIENCE: AnyHttpUrl
     AUTH0_ALGORITHMS: str
     AUTH0_ISSUER: AnyHttpUrl
+
+    # AWS
+    AWS_URL: AnyHttpUrl
+    AWS_ACCESS_KEY_ID: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION_NAME: str
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
