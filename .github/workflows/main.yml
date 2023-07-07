@@ -58,8 +58,12 @@ jobs:
       - name: Install and run AWS LocalStack
         run: |
           pip install localstack
-          localstack start --docker
-          sleep 10  # Wait for LocalStack to start up properly
+          docker pull localstack/localstack
+          localstack start -d
+
+          echo "Waiting for LocalStack to startup..."
+          localstack wait -t 30
+          echo "LocalStack startup complete"
           
       - name: Run tests with pytest
         run: |
