@@ -29,6 +29,8 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
+          pip uninstall pyOpenSSL
+          pip install pyOpenSSL
 
       - name: Create env files
         run: |
