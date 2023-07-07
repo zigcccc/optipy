@@ -73,13 +73,15 @@ jobs:
 
       - name: Install and run AWS LocalStack
         run: |
-          pip install localstack
+          pip install localstack awscli-local
           docker pull localstack/localstack
           localstack start -d
 
           echo "Waiting for LocalStack to startup..."
           localstack wait -t 30
           echo "LocalStack startup complete"
+          awslocal s3 mb s3://optipy-dev
+          awslocal s3 ls
           
       - name: Run tests & collect coverage
         run: |
