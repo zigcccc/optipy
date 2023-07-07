@@ -23,8 +23,8 @@ def upload_image(image: UploadFile = File(), db: Session = Depends(get_db)):
     try:
         file_extension = image.filename.split('.')[-1]
         hash_content = f"{image.filename}_{datetime.now()}".encode()
-        hash = hashlib.md5(hash_content).hexdigest()
-        key = f"{hash}.{file_extension}"
+        hash_str = hashlib.md5(hash_content).hexdigest()
+        key = f"{hash_str}.{file_extension}"
 
         s3.upload_fileobj(image.file, "optipy-dev", key)
 

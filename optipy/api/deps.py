@@ -25,8 +25,11 @@ def get_db() -> Generator:
 def get_auth_token_sub(token: HTTPBearer = Depends(token_auth_scheme)) -> str:
     try:
         result = token_verifier.verify(token.credentials)
-    except Exception as e:
-        raise e
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized. Token verification failed."
+        )
 
     sub = result.get("sub", None)
 

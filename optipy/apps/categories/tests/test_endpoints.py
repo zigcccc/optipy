@@ -180,7 +180,7 @@ class TestCategoryEndpoints:
         assert response.json().get("detail") == expected_error_message
 
     def test_patch_category__invalid_importance(self, client: TestClient):
-        [id, url] = self.create_test_category(client)
+        [_, url] = self.create_test_category(client)
 
         response = client.patch(
             url=url,
@@ -188,11 +188,11 @@ class TestCategoryEndpoints:
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-        [firstError] = response.json().get("detail")
-        assert firstError.get("type") == "value_error.number.not_le"
+        [first_error] = response.json().get("detail")
+        assert first_error.get("type") == "value_error.number.not_le"
 
     def test_delete_category(self, client: TestClient):
-        [id, url] = self.create_test_category(client)
+        [_, url] = self.create_test_category(client)
 
         response = client.get(url=self.url)
         assert response.json().get("total") == 1
