@@ -39,6 +39,8 @@ jobs:
 
       - name: Create .env.test file
         run: |
+          ls -la
+          touch .env.test
           echo 'DB_USER="optipy_db_test_user"' >> .env.test
           echo 'DB_PASS="optipy_db_test_123"' >> .env.test
           echo 'DB_NAME="optipy_db_test"' >> .env.test
@@ -54,6 +56,8 @@ jobs:
           echo 'AWS_ACCESS_KEY_ID="local-aws-key"' >> .env.test
           echo 'AWS_SECRET_ACCESS_KEY="local-secret-key"' >> .env.test
           echo 'AWS_REGION_NAME="eu-north-1"' >> .env.test
+          ls -la
+          cat .env.test
 
       - name: Install and run AWS LocalStack
         run: |
