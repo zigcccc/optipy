@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: python:3.11
     # Service containers to run with `container-job`
     services:
       postgres:
