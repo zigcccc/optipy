@@ -3,36 +3,43 @@ name: Coverage Report
 on:
   pull_request:
     types: [opened, synchronize]
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: optipy_db_test
+          POSTGRES_USER: optipy_db_test_user
+          POSTGRES_PASSWORD: optipy_db_test_123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
-      - name: Set up PostgreSQL
-        run: |
-          sudo apt-get update
-          sudo apt-get install postgresql -y
-
-      - name: Create PostgreSQL database and user
-        run: |
-          sudo -u postgres psql -c "CREATE DATABASE optipy_db_test;"
-          sudo -u postgres psql -c "CREATE USER optipy_db_test_user WITH ENCRYPTED PASSWORD 'optipy_db_test_123';"
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE optipy_db_test TO optipy_db_test_user;"
-          
-      - name: Set up Python environment
-        run: |
-          source ./env/bin/activate
+        with:
+          fetch-depth: 0
         
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
+          pip install -U pyopenssl cryptography
 
-      - name: Create .env.test file
+      - name: Create env files
         run: |
+          touch .env.test
+          touch .env
           echo 'DB_USER="optipy_db_test_user"' >> .env.test
           echo 'DB_PASS="optipy_db_test_123"' >> .env.test
           echo 'DB_NAME="optipy_db_test"' >> .env.test
@@ -48,13 +55,39 @@ jobs:
           echo 'AWS_ACCESS_KEY_ID="local-aws-key"' >> .env.test
           echo 'AWS_SECRET_ACCESS_KEY="local-secret-key"' >> .env.test
           echo 'AWS_REGION_NAME="eu-north-1"' >> .env.test
+          echo 'DB_USER="optipy_db_test_user"' >> .env
+          echo 'DB_PASS="optipy_db_test_123"' >> .env
+          echo 'DB_NAME="optipy_db_test"' >> .env
+          echo 'DB_HOST="localhost"' >> .env
+          echo 'DB_PORT=5432' >> .env
+          echo '' >> .env
+          echo 'AUTH0_DOMAIN="test.eu.auth0.com"' >> .env
+          echo 'AUTH0_API_AUDIENCE="https://auth0.optipy.app"' >> .env
+          echo 'AUTH0_ALGORITHMS="RS256"' >> .env
+          echo 'AUTH0_ISSUER="https://test.eu.auth0.com/"' >> .env
+          echo '' >> .env
+          echo 'AWS_URL="http://localhost:4566"' >> .env
+          echo 'AWS_ACCESS_KEY_ID="local-aws-key"' >> .env
+          echo 'AWS_SECRET_ACCESS_KEY="local-secret-key"' >> .env
+          echo 'AWS_REGION_NAME="eu-north-1"' >> .env
 
       - name: Install and run AWS LocalStack
         run: |
           pip install localstack
-          localstack start --docker
-          sleep 10  # Wait for LocalStack to start up properly
+          docker pull localstack/localstack
+          localstack start -d
+
+          echo "Waiting for LocalStack to startup..."
+          localstack wait -t 30
+          echo "LocalStack startup complete"
           
-      - name: Run tests with pytest
+      - name: Run tests & collect coverage
         run: |
-          pytest
+          coverage run -m pytest
+          coverage xml
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
