@@ -8,14 +8,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: python:3.11
+      image: cimg/python:3.11
     # Service containers to run with `container-job`
     services:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: optipy_db_test
+          POSTGRES_USER: optipy_db_test_user
+          POSTGRES_PASSWORD: optipy_db_test_123
         ports:
           - 5432:5432
         options: >-
@@ -27,20 +28,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up PostgreSQL client tools
-        run: |
-          apt-get update
-          apt-get install -y postgresql-client
-
-      - name: Create PostgreSQL database and user
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: |
-          psql -U postgres -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
-          psql -u postgres -c "CREATE DATABASE optipy_db_test;"
-          psql -u postgres -c "CREATE USER optipy_db_test_user WITH ENCRYPTED PASSWORD 'optipy_db_test_123';"
-          psql -u postgres -c "GRANT ALL PRIVILEGES ON DATABASE optipy_db_test TO optipy_db_test_user;"
           
       - name: Set up Python environment
         run: |
