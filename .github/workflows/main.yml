@@ -3,6 +3,9 @@ name: Coverage Report
 on:
   pull_request:
     types: [opened, synchronize]
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -25,6 +28,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
         
       - name: Install Python dependencies
         run: |
