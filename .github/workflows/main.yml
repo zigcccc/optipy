@@ -1,0 +1,60 @@
+name: Coverage Report
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Set up PostgreSQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install postgresql -y
+
+      - name: Create PostgreSQL database and user
+        run: |
+          sudo -u postgres psql -c "CREATE DATABASE optipy_db_test;"
+          sudo -u postgres psql -c "CREATE USER optipy_db_test_user WITH ENCRYPTED PASSWORD 'optipy_db_test_123';"
+          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE optipy_db_test TO optipy_db_test_user;"
+          
+      - name: Set up Python environment
+        run: |
+          source ./env/bin/activate
+        
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create .env.test file
+        run: |
+          echo 'DB_USER="optipy_db_test_user"' >> .env.test
+          echo 'DB_PASS="optipy_db_test_123"' >> .env.test
+          echo 'DB_NAME="optipy_db_test"' >> .env.test
+          echo 'DB_HOST="localhost"' >> .env.test
+          echo 'DB_PORT=5432' >> .env.test
+          echo '' >> .env.test
+          echo 'AUTH0_DOMAIN="test.eu.auth0.com"' >> .env.test
+          echo 'AUTH0_API_AUDIENCE="https://auth0.optipy.app"' >> .env.test
+          echo 'AUTH0_ALGORITHMS="RS256"' >> .env.test
+          echo 'AUTH0_ISSUER="https://test.eu.auth0.com/"' >> .env.test
+          echo '' >> .env.test
+          echo 'AWS_URL="http://localhost:4566"' >> .env.test
+          echo 'AWS_ACCESS_KEY_ID="local-aws-key"' >> .env.test
+          echo 'AWS_SECRET_ACCESS_KEY="local-secret-key"' >> .env.test
+          echo 'AWS_REGION_NAME="eu-north-1"' >> .env.test
+
+      - name: Install and run AWS LocalStack
+        run: |
+          pip install localstack
+          localstack start --docker
+          sleep 10  # Wait for LocalStack to start up properly
+          
+      - name: Run tests with pytest
+        run: |
+          pytest
