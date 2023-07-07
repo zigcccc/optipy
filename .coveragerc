@@ -5,3 +5,6 @@ omit =
   *tests*
   **/__pycache__/
   **/__init__.py
+  migrations/**
+  conftest.py
+  shell.py
