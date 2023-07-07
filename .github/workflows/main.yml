@@ -18,10 +18,13 @@ jobs:
           sudo apt-get install postgresql -y
 
       - name: Create PostgreSQL database and user
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
-          sudo -u postgres psql -c "CREATE DATABASE optipy_db_test;"
-          sudo -u postgres psql -c "CREATE USER optipy_db_test_user WITH ENCRYPTED PASSWORD 'optipy_db_test_123';"
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE optipy_db_test TO optipy_db_test_user;"
+          psql -U postgres -c "ALTER USER postgres PASSWORD '${POSTGRES_PASSWORD}';"
+          psql -u postgres -c "CREATE DATABASE optipy_db_test;"
+          psql -u postgres -c "CREATE USER optipy_db_test_user WITH ENCRYPTED PASSWORD 'optipy_db_test_123';"
+          psql -u postgres -c "GRANT ALL PRIVILEGES ON DATABASE optipy_db_test TO optipy_db_test_user;"
           
       - name: Set up Python environment
         run: |
