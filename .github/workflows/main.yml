@@ -7,9 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # container:
-    #   image: cimg/python:3.11
-    # Service containers to run with `container-job`
     services:
       postgres:
         image: postgres
@@ -28,19 +25,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-          
-      # - name: Set up Python environment
-      #   run: |
-      #     source ./env/bin/activate
         
       - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
 
-      - name: Create .env.test file
+      - name: Create env files
         run: |
-          ls -la
           touch .env.test
+          touch .env
           echo 'DB_USER="optipy_db_test_user"' >> .env.test
           echo 'DB_PASS="optipy_db_test_123"' >> .env.test
           echo 'DB_NAME="optipy_db_test"' >> .env.test
@@ -56,8 +49,21 @@ jobs:
           echo 'AWS_ACCESS_KEY_ID="local-aws-key"' >> .env.test
           echo 'AWS_SECRET_ACCESS_KEY="local-secret-key"' >> .env.test
           echo 'AWS_REGION_NAME="eu-north-1"' >> .env.test
-          ls -la
-          cat .env.test
+          echo 'DB_USER="optipy_db_test_user"' >> .env
+          echo 'DB_PASS="optipy_db_test_123"' >> .env
+          echo 'DB_NAME="optipy_db_test"' >> .env
+          echo 'DB_HOST="localhost"' >> .env
+          echo 'DB_PORT=5432' >> .env
+          echo '' >> .env
+          echo 'AUTH0_DOMAIN="test.eu.auth0.com"' >> .env
+          echo 'AUTH0_API_AUDIENCE="https://auth0.optipy.app"' >> .env
+          echo 'AUTH0_ALGORITHMS="RS256"' >> .env
+          echo 'AUTH0_ISSUER="https://test.eu.auth0.com/"' >> .env
+          echo '' >> .env
+          echo 'AWS_URL="http://localhost:4566"' >> .env
+          echo 'AWS_ACCESS_KEY_ID="local-aws-key"' >> .env
+          echo 'AWS_SECRET_ACCESS_KEY="local-secret-key"' >> .env
+          echo 'AWS_REGION_NAME="eu-north-1"' >> .env
 
       - name: Install and run AWS LocalStack
         run: |
@@ -69,7 +75,13 @@ jobs:
           localstack wait -t 30
           echo "LocalStack startup complete"
           
-      - name: Run tests with pytest
+      - name: Run tests & collect coverage
         run: |
-          ls -la
-          pytest
+          coverage run -m pytest
+          coverage xml
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
