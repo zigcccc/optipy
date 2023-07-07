@@ -1,5 +1,7 @@
 import jwt
+from fastapi import HTTPException, status
 
+from optipy.api.exceptions import BadRequestFromRaisedException
 from optipy.config import settings
 
 
@@ -15,11 +17,17 @@ class VerifyToken():
         try:
             jwk = self.jwks_client.get_signing_key_from_jwt(token)
 
-        except jwt.exceptions.PyJWKClientError as error:
-            raise error
+        except jwt.exceptions.PyJWKClientError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Error while trying to initialize JWK client."
+            )
 
-        except jwt.exceptions.DecodeError as error:
-            raise error
+        except jwt.exceptions.DecodeError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Error decoding JWT token"
+            )
 
         try:
             decoded_token = jwt.decode(
@@ -31,6 +39,6 @@ class VerifyToken():
             )
 
         except Exception as e:
-            raise e
+            raise BadRequestFromRaisedException(exception=e)
 
         return decoded_token
