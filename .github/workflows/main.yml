@@ -71,4 +71,5 @@ jobs:
           
       - name: Run tests with pytest
         run: |
+          ls -la
           pytest
