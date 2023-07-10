@@ -26,7 +26,7 @@ class VerifyToken():
         except jwt.exceptions.DecodeError:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error decoding JWT token"
+                detail="Error decoding JWT token."
             )
 
         try:

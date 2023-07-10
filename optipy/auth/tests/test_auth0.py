@@ -54,6 +54,19 @@ class TestVerifyToken:
             assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
             assert exc_info.value.detail == "Error while trying to initialize JWK client."
 
+    def test_verify_decode_error(self, mocker, verify_token):
+        mock_jwks_client = mocker.MagicMock()
+        mock_jwks_client.get_signing_key_from_jwt.side_effect = jwt.exceptions.DecodeError
+        verify_token.jwks_client = mock_jwks_client
+
+        token = "invalid_token"
+
+        with pytest.raises(HTTPException) as exc_info:
+            verify_token.verify(token)
+
+            assert exc_info.value.status_code == status.HTTP_400_BAD_REQUEST
+            assert exc_info.value.detail == "Error decoding JWT token."
+
     def test_verify_invalid_token(self, mocker, verify_token):
         mock_jwks_client = mocker.MagicMock()
         mock_jwks_client.get_signing_key_from_jwt.return_value = mocker.MagicMock()
